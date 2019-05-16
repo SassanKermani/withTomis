@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>⚒️</title>
+	<style type="text/css">
+		#callBtn{
+			width: 99vw;
+			height: 49vh;
+			background-color: green;
+			font-size: 10em;
+			padding: 0px;
+			margin: 0px;
+			border: 0px;
+		}
+		#awnserBtn{
+			width: 99vw;
+			height: 49vh;
+			background-color: blue;
+			font-size: 10em;
+		}
+
+		#next{
+
+		}
+
+		#cpyBtn{
+			font-size: 10em;
+			width: 99vw;
+			height: 49vh;
+			background-color: yellow;
+		}
+
+		#otherObj{
+			font-size: 5em;
+			width: 78vw;
+			height: 19vh;
+
+		}
+
+		#connectBtn{
+			font-size: 5em;
+			width: 19vw;
+			height: 19vh;
+			background-color: purple;
+		}
+
+	</style>
+</head>
+<body>
+	<div id="start">
+		<center>
+			<button id="callBtn" onclick="call()">call</button>
+			<br>
+			<button id="awnserBtn" onclick="awnser()">awnser</button>
+		</center>
+	</div>
+	<div id="next" hidden>
+		<center>
+			<button id="cpyBtn">copy</button>
+			<input type="text" id="otherObj">
+			<button id="connectBtn">go</button>
+			<br>
+			<br>
+			<p id="obj"></p>
+		</center>
+	</div>
+	<script type="text/javascript">
+		
+		let rtcConnection = new RTCPeerConnection(RTCPeerConnection.defaultIceServers);
+		let sendChannel = rtcConnection.createDataChannel('sendDataChannel');
+		(async()=>{
+			let stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+			stream.getTracks().forEach(track => rtcConnection.addTrack(track, stream));
+		})();
+		let obj = {};
+
+		function call(){
+			document.getElementById('start').setAttribute(`hidden`, true);
+			document.getElementById(`next`).removeAttribute(`hidden`);
+
+			rtcConnection.createOffer().then((offer)=>{
+				rtcConnection.setLocalDescription(offer);
+				obj.data = offer;
+			});
+		}
+
+		function awnser(){
+			document.getElementById('start').setAttribute(`hidden`, true);
+			document.getElementById(`next`).removeAttribute(`hidden`);
+
+			console.log(`kk`);
+			
+			// document.getElementById('connectBtn').addEventListener(`click`, ()=>{
+			// 	console.log(`go`);
+			// });
+
+			// console.log(`kk`);
+		}
+
+		rtcConnection.onicecandidate = (event)=> {
+			if(event.candidate){
+				obj.ice = event.candidate;
+				document.getElementById(`obj`).innerHTML = JSON.stringify(obj);
+				
+				document.getElementById('cpyBtn').addEventListener(`click`, ()=>{
+					navigator.clipboard.writeText(`${JSON.stringify(obj)}`);
+				});
+
+				document.getElementById('connectBtn').addEventListener(`click`, ()=>{
+					if(document.getElementById('otherObj').value != ``){
+						let otherObj = JSON.parse(document.getElementById('otherObj').value);
+						rtcConnection.setRemoteDescription(otherObj.data);
+						RTCPeerConnection.addIceCandidate(otherObj.ice);
+					}
+				})
+			}
+		};
+		/*----------  --------------------------------------------------------------  ----------*/
+		
+
+		// let rtcConnection = new RTCPeerConnection(RTCPeerConnection.defaultIceServers);
+		// let dataChannel = rtcConnection.createDataChannel('dataChannel');
+		// let obj = {};
+
+		// async function call(){
+		// 	// let stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+		// 	// stream.getTracks().forEach(track => rtcConnection.addTrack(track, stream));
+
+		// 	document.getElementById('start').setAttribute(`hidden`, true);
+		// 	rtcConnection.createOffer().then((offer)=>{
+		// 		rtcConnection.setLocalDescription(offer);
+		// 		obj.data = offer;
+		// 	});
+
+		// 	rtcConnection.onicecandidate = (event)=>{
+		// 		if(event.candidate){
+		// 			obj.ice = event.candidate;
+		// 			document.getElementById(`next`).removeAttribute(`hidden`);
+		// 			document.getElementById(`obj`).innerHTML = JSON.stringify(obj);
+		// 			document.getElementById('cpyBtn').addEventListener(`click`, ()=>{
+		// 				navigator.clipboard.writeText(`${JSON.stringify(obj)}`);
+		// 			})
+		// 			document.getElementById('connectBtn').addEventListener(`click`, ()=>{
+		// 				let otherObj = document.getElementById('otherObj').value;
+		// 				if(otherObj != ``){
+		// 					rtcConnection.setRemoteDescription(JSON.parse(otherObj).data);
+		// 					rtcConnection.addIceCandidate(JSON.parse(otherObj).ice);
+		// 				}
+		// 			})
+		// 		}
+		// 	};
+		// }
+
+		// async function awnser() {
+		// 	// let stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+		// 	// stream.getTracks().forEach(track => rtcConnection.addTrack(track, stream));
+
+		// 	document.getElementById('start').setAttribute(`hidden`, true);
+		// 	document.getElementById(`next`).removeAttribute(`hidden`);
+		// 	document.getElementById('connectBtn').addEventListener(`click`, ()=>{
+		// 	let otherObj = document.getElementById('otherObj').value;
+		// 		if(otherObj != ``){
+		// 			rtcConnection.setRemoteDescription(JSON.parse(otherObj).data);
+		// 			rtcConnection.addIceCandidate(JSON.parse(otherObj).ice);
+
+		// 			rtcConnection.createAnswer().then((awnser)=>{
+		// 				rtcConnection.setLocalDescription(awnser);
+		// 				obj.data = awnser;
+		// 			});
+
+		// 			rtcConnection.onicecandidate = (event)=>{
+		// 				if(event.candidate){
+		// 					obj.ice = event.candidate;
+		// 					document.getElementById(`obj`).innerHTML = JSON.stringify(obj);
+		// 					document.getElementById('cpyBtn').addEventListener(`click`, ()=>{
+		// 						navigator.clipboard.writeText(`${JSON.stringify(obj)}`);
+		// 					})
+		// 				}
+		// 			}
+		// 		}
+		// 	});
+		// }
+
+	</script>
+</body>
+</html>

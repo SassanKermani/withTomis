@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<div id="start">
+		
+	</div>
+<script type="text/javascript">
+	/*=============================
+	=            class            =
+	=============================*/
+	let newRTc = class{
+		constructor(){
+			this.rtcConnection = new RTCPeerConnection(RTCPeerConnection.defaultIceServers);
+			this.dataChannel = this.rtcConnection.createDataChannel('dataChannel');
+			this.offer;
+			this.response;
+			this.ice;
+
+			this.dataChannelLogic = (thing)=>{};
+			this.trackChannelLogic = (thing)=>{};
+
+			this.rtcConnection.onicecandidate = (event)=>{
+				if(event.candidate){
+					this.ice = event.candidate;
+				}
+			};
+
+			this.rtcConnection.ondatachannel = (event)=>{
+				this.dataChannelLogic(event);
+			}
+		}
+
+		callPartOne(){
+			this.rtcConnection.createOffer().then((offer)=>{
+				this.rtcConnection.setLocalDescription(offer);
+				this.offer = offer;
+			});
+		}
+
+		callPartTwo(response, ice){
+			this.rtcConnection.setRemoteDescription(response);
+			this.rtcConnection.addIceCandidate(ice);
+		}
+
+		awnser(offer, ice){
+			this.rtcConnection.setRemoteDescription(offer);
+			this.rtcConnection.addIceCandidate(ice);
+			this.rtcConnection.createAnswer().then((response)=>{
+				this.rtcConnection.setLocalDescription(response)
+				this.response = response;
+			});
+		}
+
+		send(message){
+			if(this.dataChannel.readyState == `open`){
+				this.dataChannel.send(message);
+			}
+		}
+
+		onmessage(userLogic){
+			this.dataChannelLogic = userLogic;
+		}
+
+	}
+	/*=====  End of class  ======*/
+	/*==========================================
+	=            this Page spasific            =
+	==========================================*/
+	let numConnectons = 0;
+
+	/*----------  RTC  ----------*/
+	let one = new newRTc();
+	let oneBackUpOne = new newRTc();
+	let oneBackUpTwo = new newRTc();
+
+	let two = new newRTc();
+	let twoBackUpOne = new newRTc();
+	let twoBackUpTwo = new newRTc();
+
+	/*----------  FIRST JOIN  ----------*/
+	
+
+	/*=====  End of this Page spasific  ======*/
+
+</script>
+</body>
+</html>
